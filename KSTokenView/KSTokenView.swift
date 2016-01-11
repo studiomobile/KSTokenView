@@ -251,6 +251,11 @@ public class KSTokenView: UIView {
          }
       }
    }
+    
+    public var textColor: UIColor?  {
+        get { return _tokenField.textColor }
+        set { _tokenField.textColor = newValue }
+    }
    
    /// An array of string values. Default values are "." and ",". Token is created with typed text, when user press any of the character mentioned in this Array
    public var tokenizingCharacters = [".", ","]
