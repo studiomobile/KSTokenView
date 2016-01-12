@@ -182,6 +182,7 @@ public class KSTokenField: UITextField {
    
    private func _setScrollRect() {
       _scrollView.frame = CGRect(x: _leftViewRect().width, y: 0, width: frame.width - _leftViewRect().width, height: frame.height)
+    
    }
    
    override public func drawRect(rect: CGRect) {
@@ -440,14 +441,15 @@ public class KSTokenField: UITextField {
       let leftMargin = _leftViewRect().width
       let tokenHeight = _font!.lineHeight + _paddingY!;
       
-      var tokenPosition = CGPoint(x: _marginX!, y: _marginY!)
-      
+      var tokenPosition = CGPoint(x: _marginX! + leftMargin, y: 0)
       for token: KSToken in tokens {
          let width = KSUtils.getRect(token.title, width: bounds.size.width, font: _font!).size.width + ceil(_paddingX!*2+1)
          let tokenWidth = min(width, token.maxWidth)
          
          if ((token.superview) != nil) {
-            token.frame = CGRect(x: tokenPosition.x, y: tokenPosition.y, width: tokenWidth, height: tokenHeight)
+            let y = (frame.size.height - tokenHeight) / 2
+            
+            token.frame = CGRect(x: tokenPosition.x, y: y, width: tokenWidth, height: tokenHeight)
             tokenPosition.x += tokenWidth + _marginX!;
          }
       }
@@ -456,7 +458,7 @@ public class KSTokenField: UITextField {
       _scrollView.contentSize = CGSize(width: max(_scrollView.frame.width, tokenPosition.x + offsetWidth), height: frame.height)
       scrollViewScrollToEnd()
       
-      return CGPoint(x: min(tokenPosition.x + leftMargin, frame.width - _minWidthForInput), y: frame.height)
+      return CGPoint(x: min(tokenPosition.x, frame.width - _minWidthForInput), y: frame.height)
    }
    
    /**
@@ -478,17 +480,37 @@ public class KSTokenField: UITextField {
    **************************** Text Rect ****************************
    */
    
-   private func _textRectWithBounds(bounds: CGRect) -> CGRect {
-      if (!_setupCompleted) {return .zero}
-      if (tokens.count == 0 || _caretPoint == nil) {
-         return CGRect(x: _leftViewRect().width + _marginX!, y: (bounds.size.height - font!.lineHeight)*0.5, width: bounds.size.width-5, height: bounds.size.height)
-      }
-      
-      if (tokens.count != 0 && _state == .Closed) {
-         return CGRect(x: _leftViewRect().maxX + _marginX!, y: (_caretPoint!.y - font!.lineHeight - (_marginY!)), width: (frame.size.width - _caretPoint!.x - _marginX!), height: bounds.size.height)
-      }
-      return CGRect(x: _caretPoint!.x, y: (_caretPoint!.y - font!.lineHeight - (_marginY!)), width: (frame.size.width - _caretPoint!.x - _marginX!), height: bounds.size.height)
-   }
+    private func _textRectWithBounds(bounds: CGRect) -> CGRect {
+        if (!_setupCompleted) {return .zero}
+        
+        if (tokens.count == 0 || _caretPoint == nil) {
+            return CGRect(x: _leftViewRect().width + _marginX!, y: (bounds.size.height - font!.lineHeight)*0.5, width: bounds.size.width-5, height: bounds.size.height)
+        }
+        
+        switch _direction {
+            case .Horizontal:
+                return _horizontalTextRectWithBounds(bounds)
+            case .Vertical:
+                return _verticalTextRectWithBounds(bounds)
+        }
+    }
+    
+    private func _horizontalTextRectWithBounds(bounds: CGRect) -> CGRect {
+        if (tokens.count != 0 && _state == .Closed) {
+            return CGRect(x: _leftViewRect().maxX + _marginX!, y: (_caretPoint!.y - font!.lineHeight - (_marginY!)), width: (frame.size.width - _caretPoint!.x - _marginX!), height: bounds.size.height)
+        }
+        else {
+            return CGRect(x: _caretPoint!.x, y: (bounds.size.height - font!.lineHeight)*0.5, width: (frame.size.width - _caretPoint!.x - _marginX!), height: bounds.size.height)
+        }
+    }
+    
+    private func _verticalTextRectWithBounds(bounds: CGRect) -> CGRect {
+        if (tokens.count != 0 && _state == .Closed) {
+            return CGRect(x: _leftViewRect().maxX + _marginX!, y: (_caretPoint!.y - font!.lineHeight - (_marginY!)), width: (frame.size.width - _caretPoint!.x - _marginX!), height: bounds.size.height)
+        }
+        
+        return CGRect(x: _caretPoint!.x, y: (_caretPoint!.y - font!.lineHeight - (_marginY!)), width: (frame.size.width - _caretPoint!.x - _marginX!), height: bounds.size.height)
+    }
    
    override public func leftViewRectForBounds(bounds: CGRect) -> CGRect {
       return CGRect(x: _marginX!, y: (_selfFrame != nil) ? (_selfFrame!.height - _leftViewRect().height)*0.5: (bounds.height - _leftViewRect().height)*0.5, width: _leftViewRect().width, height: _leftViewRect().height)
