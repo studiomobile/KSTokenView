@@ -59,7 +59,13 @@ public class KSTokenField: UITextField {
    private var _paddingY: CGFloat?
    private var _marginX: CGFloat?
    private var _marginY: CGFloat?
-   private var _removesTokensOnEndEditing = true
+    private var _removesTokensOnEndEditing = true {
+        didSet {
+            if _removesTokensOnEndEditing && _state == .Closed {
+                tokenize()
+            }
+        }
+    }
    private var _scrollView = UIScrollView(frame: .zero)
    private var _scrollPoint = CGPoint.zero
    private var _direction: KSTokenViewScrollDirection = .Vertical {
