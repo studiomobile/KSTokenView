@@ -441,7 +441,7 @@ public class KSTokenField: UITextField {
       let leftMargin = _leftViewRect().width
       let tokenHeight = _font!.lineHeight + _paddingY!;
       
-      var tokenPosition = CGPoint(x: _marginX! + leftMargin, y: 0)
+      var tokenPosition = CGPoint(x: _marginX!, y: 0)
       for token: KSToken in tokens {
          let width = KSUtils.getRect(token.title, width: bounds.size.width, font: _font!).size.width + ceil(_paddingX!*2+1)
          let tokenWidth = min(width, token.maxWidth)
@@ -458,7 +458,7 @@ public class KSTokenField: UITextField {
       _scrollView.contentSize = CGSize(width: max(_scrollView.frame.width, tokenPosition.x + offsetWidth), height: frame.height)
       scrollViewScrollToEnd()
       
-      return CGPoint(x: min(tokenPosition.x, frame.width - _minWidthForInput), y: frame.height)
+      return CGPoint(x: min(tokenPosition.x + leftMargin, frame.width - _minWidthForInput), y: frame.height)
    }
    
    /**
